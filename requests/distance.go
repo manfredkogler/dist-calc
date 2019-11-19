@@ -1,0 +1,62 @@
+package requests
+
+import (
+	"bytes"
+	"dist-calc/models"
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"net/http"
+)
+
+// curl 'https://route.api.here.com/routing/7.2/calculateroute.json?app_id=lD6sZ3QeKG552sEIkRVn&app_code=TbdJaZQdA7QxIIc3Qj--7A&waypoint0=geo!48.211836,16.319760&waypoint1=geo!48.215239,16.365305&representation=overview&mode=fastest;car;traffic:enabled'
+const (
+	hereAPIroutingURL           = "https://route.api.here.com/routing/7.2/calculateroute.json?"
+	hereAPIroutingTailParamsURL = "waypoint0=geo!%s,%s&waypoint1=geo!%s,%s&representation=overview&mode=fastest;car;traffic:disabled"
+)
+
+var distanceReqURL = hereAPIroutingURL + hereAPIstartingCredentials + hereAPIroutingTailParamsURL
+
+func init() {
+	fmt.Println(distanceReqURL)
+}
+
+// test data BEGIN
+
+// Locations test data
+var Locations []models.Loc = []models.Loc{
+	{Addr: "Lambertgasse 4", Lat: "48.211836", Lng: "16.319760"},
+	{Addr: "Schottenring 1", Lat: "48.215239", Lng: "16.365305"},
+}
+
+const (
+	// Lambertgasse test data
+	Lambertgasse = 0
+	// Schottenring test data
+	Schottenring = 1
+)
+
+// test data END
+
+// Distance returns the distance from "from" to "to" in meters
+func Distance(from models.Loc, to models.Loc) int64 {
+	reqString := fmt.Sprintf(distanceReqURL, from.Lat, from.Lng, to.Lat, to.Lng)
+	fmt.Println(reqString)
+	response, err := http.Get(reqString)
+	var data []byte
+	if err != nil {
+		fmt.Printf("The HTTP request failed with rror %s\n", err)
+	} else {
+		defer response.Body.Close()
+		data, _ = ioutil.ReadAll(response.Body)
+		fmt.Println(string(data))
+	}
+
+	// Restore the io.ReadCloser to its original state
+	response.Body = ioutil.NopCloser(bytes.NewBuffer(data))
+
+	var b models.CalculateRouteResponse = models.CalculateRouteResponse{}
+	jd := json.NewDecoder(response.Body)
+	jd.Decode(&b)
+	return b.Response.Route[0].Summary.Distance
+}
