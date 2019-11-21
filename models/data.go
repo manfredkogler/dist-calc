@@ -4,3 +4,9 @@ package models
 type Loc struct {
 	Addr, Lat, Lng string
 }
+
+// RouteInfo stores route information
+type RouteInfo struct {
+	Distance   int64
+	TravelTime int64
+}

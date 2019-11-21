@@ -19,10 +19,6 @@ const (
 
 var fowardGeocoderReqURL = hereAPIgeocoderURL + hereAPIstartingCredentials + hereAPIgeocoderTailParamsURL
 
-func init() {
-	fmt.Println(fowardGeocoderReqURL)
-}
-
 // test data BEGIN
 
 // test data END

@@ -17,10 +17,6 @@ const (
 
 var distanceReqURL = hereAPIroutingURL + hereAPIstartingCredentials + hereAPIroutingTailParamsURL
 
-func init() {
-	fmt.Println(distanceReqURL)
-}
-
 // test data BEGIN
 
 // Locations test data
@@ -38,8 +34,8 @@ const (
 
 // test data END
 
-// Distance returns the distance from "from" to "to" in meters
-func Distance(from models.Loc, to models.Loc) int64 {
+// CalculateRoute calculates and returns the route info from "from" to "to"
+func CalculateRoute(from models.Loc, to models.Loc) models.RouteInfo {
 	reqString := fmt.Sprintf(distanceReqURL, from.Lat, from.Lng, to.Lat, to.Lng)
 	fmt.Println(reqString)
 	response, err := http.Get(reqString)
@@ -58,5 +54,6 @@ func Distance(from models.Loc, to models.Loc) int64 {
 	var b models.CalculateRouteResponse = models.CalculateRouteResponse{}
 	jd := json.NewDecoder(response.Body)
 	jd.Decode(&b)
-	return b.Response.Route[0].Summary.Distance
+	rs := b.Response.Route[0].Summary
+	return models.RouteInfo{Distance: rs.Distance, TravelTime: rs.TravelTime}
 }
