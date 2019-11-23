@@ -19,11 +19,7 @@ const (
 
 var fowardGeocoderReqURL = hereAPIgeocoderURL + hereAPIstartingCredentials + hereAPIgeocoderTailParamsURL
 
-// test data BEGIN
-
-// test data END
-
-// ForwardGeocode returns the geocode for a given address specified as "searchString" (strings separated by blanks)
+// ForwardGeocode returns the geocode for a given address specified as "searchString" (any string including whitespaces)
 func ForwardGeocode(searchString string) models.Loc {
 	reqString := fmt.Sprintf(fowardGeocoderReqURL, url.QueryEscape(searchString))
 	fmt.Println(reqString)
