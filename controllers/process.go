@@ -6,12 +6,103 @@ import (
 	"encoding/csv"
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"strconv"
 	"strings"
 )
 
+type outFiles struct {
+	main      *os.File
+	addresses *os.File
+	distances *os.File
+}
+
+type csvWriters struct {
+	main      *csv.Writer
+	addresses *csv.Writer
+	distances *csv.Writer
+}
+
+func createOutFiles(main string, addresses string, distances string) outFiles {
+	return outFiles{
+		main:      createOutFile(main),
+		addresses: createOutFile(addresses),
+		distances: createOutFile(distances)}
+}
+
+func createCsvWriters(of outFiles) csvWriters {
+	return csvWriters{
+		main:      createCsvWriter(of.main),
+		addresses: createCsvWriter(of.addresses),
+		distances: createCsvWriter(of.distances)}
+}
+
+func (o *outFiles) close() {
+	checkedClose(o.main)
+	checkedClose(o.addresses)
+	checkedClose(o.distances)
+}
+
+func checkedClose(f *os.File) {
+	if err := f.Close(); err != nil {
+		panic(err)
+	}
+}
+
+func createOutFile(filepath string) *os.File {
+	outFile, err := os.Create(filepath)
+	if err != nil {
+		panic(err)
+	}
+
+	// Write the UTF-8 BOM header for Excel to open it with correct encoding
+	bomUtf8 := []byte{0xEF, 0xBB, 0xBF}
+	_, err = outFile.Write(bomUtf8)
+	if err != nil {
+		panic(err)
+	}
+
+	return outFile
+}
+
+func createCsvWriter(outFile *os.File) *csv.Writer {
+	w := csv.NewWriter(outFile)
+	w.Comma = ';'
+	return w
+}
+
+func (w *csvWriters) writeColumnHeaders() {
+	// Write column headers
+	checkedWrite(w.main, []string{
+		"start [km]", "end [km]", "distance [km]", "route"})
+	checkedWrite(w.addresses, []string{
+		"address specified", "address found", "latitude", "longitude"})
+	checkedWrite(w.distances, []string{
+		"route", "distance [m]", "travel time [s]"})
+}
+
+func checkedWrite(w *csv.Writer, record []string) {
+	err := w.Write(record)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func (w *csvWriters) flush() {
+	checkedFlush(w.main)
+	checkedFlush(w.addresses)
+	checkedFlush(w.distances)
+}
+
+func checkedFlush(w *csv.Writer) {
+	w.Flush()
+	err := w.Error()
+	if err != nil {
+		panic(err)
+	}
+}
+
+// ProcessAdressList traverses the address list and generates the output files
 func ProcessAdressList(inFilepath string, outFilepath string, startPoint float64) {
 	inFile, err := os.Open(inFilepath)
 	if err != nil {
@@ -24,45 +115,30 @@ func ProcessAdressList(inFilepath string, outFilepath string, startPoint float64
 	r.TrimLeadingSpace = true
 	// r.ReuseRecord = true
 
-	outFile, err := os.Create(outFilepath)
-	if err != nil {
-		panic(err)
-	}
-	defer outFile.Close()
+	outFiles := createOutFiles(outFilepath, "addresses-retrieved.csv", "distances-retrieved.csv")
+	defer outFiles.close()
 
-	// Write the UTF-8 BOM header for Excel to open it with correct encoding
-	bomUtf8 := []byte{0xEF, 0xBB, 0xBF}
-	outFile.Write(bomUtf8)
-
-	w := csv.NewWriter(outFile)
-	w.Comma = ';'
-
-	// Write column headers
-	err = w.Write([]string{
-		"address specified", "address found", "latitude", "longitude",
-		"distance [m]", "travel time [s]",
-		"start [km]", "end [km]", "distance [km]",
-		"route"})
+	csvWriters := createCsvWriters(outFiles)
+	csvWriters.writeColumnHeaders()
 
 	startKm := startPoint
 	endKm := startKm
 
-	fromSpec, distanceSpecHandled := readNextAddressSpec(r, w, &startKm, &endKm)
+	fromSpec, _ := readNextAddressSpec(r, csvWriters.main, &startKm, &endKm)
 	if fromSpec == "" {
 		return
 	}
-	from := requests.ForwardGeocode(fromSpec)
+	from := handleForwardGeocode(fromSpec, csvWriters.addresses)
 
-	var to models.Loc
 	for {
 		fmt.Println("----------------------------------------------------------------------")
 
-		var toSpec string
-		toSpec, distanceSpecHandled = readNextAddressSpec(r, w, &startKm, &endKm)
+		// var toSpec string
+		toSpec, distanceSpecHandled := readNextAddressSpec(r, csvWriters.main, &startKm, &endKm)
 		if toSpec == "" {
 			break
 		}
-		to = requests.ForwardGeocode(toSpec)
+		to := handleForwardGeocode(toSpec, csvWriters.addresses)
 
 		// If we have handled a distance specification we cannot yet calculate a distance and
 		// we need safe the to as the from and read in the next address spec by restarting this loop
@@ -80,28 +156,30 @@ func ProcessAdressList(inFilepath string, outFilepath string, startPoint float64
 		endKm += distanceKm
 
 		// Write next line / location
-		err = w.Write([]string{
-			toSpec, to.Addr, to.Lat, to.Lng,
-			strconv.FormatInt(routeInfo.Distance, 10), strconv.FormatInt(routeInfo.TravelTime, 10),
-			floatToString(startKm), floatToString(endKm), floatToString(distanceKm),
-			fromSpec + " -> " + toSpec})
+		routeSpec := fromSpec + " -> " + toSpec
+		checkedWrite(csvWriters.main, []string{
+			floatToString(startKm), floatToString(endKm), floatToString(distanceKm), routeSpec})
+		checkedWrite(csvWriters.distances, []string{
+			routeSpec, strconv.FormatInt(routeInfo.Distance, 10), strconv.FormatInt(routeInfo.TravelTime, 10)})
 
 		fromSpec = toSpec
 		from = to
 	}
 
-	w.Flush()
-	err = w.Error()
-	if err != nil {
-		// an error occurred during the flush
-		panic(err)
-	}
+	csvWriters.flush()
 }
 
-// readNextAddressSpec reads the next address spec; any distance specifications before are handled before
+func handleForwardGeocode(addrSpec string, addresses *csv.Writer) models.Loc {
+	loc := requests.ForwardGeocode(addrSpec)
+	// Write the record to the address file
+	checkedWrite(addresses, []string{addrSpec, loc.Addr, loc.Lat, loc.Lng})
+	return loc
+}
+
+// readNextAddressSpec reads the next address spec; any distance specification before is properly handled
 // return value:
-//   string:	address specification (empty of eof)
-//   bool:		distance specification(s) handled
+//   string:	address specification (empty string if eof)
+//   bool:		any distance specification handled
 func readNextAddressSpec(r *csv.Reader, w *csv.Writer, startKm *float64, endKm *float64) (string, bool) {
 	var distanceSpecHandled bool
 
@@ -110,7 +188,7 @@ func readNextAddressSpec(r *csv.Reader, w *csv.Writer, startKm *float64, endKm *
 		return "", distanceSpecHandled
 	}
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 	fromSpec := record[0]
 
@@ -128,19 +206,17 @@ func readNextAddressSpec(r *csv.Reader, w *csv.Writer, startKm *float64, endKm *
 		*endKm += distanceSpecKm
 
 		// Write direct distance record
-		err = w.Write([]string{
-			"-", "-", "-", "-",
-			"-", "-",
-			floatToString(*startKm), floatToString(*endKm), floatToString(distanceSpecKm),
-			"-"})
+		checkedWrite(w, []string{
+			floatToString(*startKm), floatToString(*endKm), floatToString(distanceSpecKm), "-"})
 
 		record, err := r.Read()
 		if err == io.EOF {
+			// Signalling eof
 			fromSpec = ""
 			break
 		}
 		if err != nil {
-			log.Fatal(err)
+			panic(err)
 		}
 		fromSpec = record[0]
 	}
