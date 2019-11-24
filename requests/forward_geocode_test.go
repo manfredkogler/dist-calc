@@ -24,8 +24,8 @@ const (
 // test data END
 
 func TestForwardGeocode(t *testing.T) {
-	routeInfo := requests.CalculateRoute(requests.Locations[requests.Lambertgasse], requests.Locations[requests.Schottenring])
-	routeInfo = requests.CalculateRoute(requests.Locations[requests.Schottenring], requests.Locations[requests.Lambertgasse])
+	routeInfo := requests.CalculateRoute(Locations[Lambertgasse], Locations[Schottenring])
+	routeInfo = requests.CalculateRoute(Locations[Schottenring], Locations[Lambertgasse])
 	_ = routeInfo
 
 	location := requests.ForwardGeocode("Schottenring 1 Wien")
