@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path"
 	"strconv"
 	"strings"
 )
@@ -115,7 +116,8 @@ func ProcessAdressList(inFilepath string, outFilepath string, startPoint float64
 	r.TrimLeadingSpace = true
 	// r.ReuseRecord = true
 
-	outFiles := createOutFiles(outFilepath, "addresses-retrieved.csv", "distances-retrieved.csv")
+	outFilePathWoExt := strings.TrimSuffix(outFilepath, path.Ext(outFilepath))
+	outFiles := createOutFiles(outFilepath, outFilePathWoExt+"-addresses-retrieved.csv", outFilePathWoExt+"-distances-retrieved.csv")
 	defer outFiles.close()
 
 	csvWriters := createCsvWriters(outFiles)
