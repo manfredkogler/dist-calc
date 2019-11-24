@@ -213,7 +213,7 @@ func readNextAddressSpec(r *csv.Reader, w *csv.Writer, startKm *float64, endKm *
 
 		record, err := r.Read()
 		if err == io.EOF {
-			// Signalling eof
+			// Signaling eof
 			fromSpec = ""
 			break
 		}
