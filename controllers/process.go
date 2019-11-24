@@ -10,6 +10,8 @@ import (
 	"path"
 	"strconv"
 	"strings"
+
+	"github.com/dimchansky/utfbom"
 )
 
 type outFiles struct {
@@ -111,7 +113,10 @@ func ProcessAdressList(inFilepath string, outFilepath string, startPoint float64
 	}
 	defer inFile.Close()
 
-	r := csv.NewReader(inFile)
+	// Skip the BOM if there, otherwise it will be part of the first address parsed
+	bomSkippedInFile := utfbom.SkipOnly(inFile)
+
+	r := csv.NewReader(bomSkippedInFile)
 	r.Comma = ';'
 	r.TrimLeadingSpace = true
 	// r.ReuseRecord = true
