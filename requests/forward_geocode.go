@@ -51,3 +51,20 @@ func floatToString(inputNum float64) string {
 	// to convert a float number to a string
 	return strconv.FormatFloat(inputNum, 'f', 6, 64)
 }
+
+// CachedForwardGeocoder returns a cached version of ForwardGeocode
+func CachedForwardGeocoder() (f func(string) models.Loc) {
+	// The cache
+	var addressMap = map[string]models.Loc{}
+
+	f = func(searchString string) models.Loc {
+		cachedLoc, ok := addressMap[searchString]
+		if ok {
+			return cachedLoc
+		}
+		loc := ForwardGeocode(searchString)
+		addressMap[searchString] = loc
+		return loc
+	}
+	return
+}
