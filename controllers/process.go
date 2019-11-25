@@ -176,10 +176,10 @@ func ProcessAdressList(inFilepath string, outFilepath string, startPoint float64
 	csvWriters.flush()
 }
 
-var cachedForwardGeocoder = requests.CachedForwardGeocoder()
+var cachedForwardGeocode = requests.CachedForwardGeocodeClosure()
 
 func handleForwardGeocode(addrSpec string, addresses *csv.Writer) models.Loc {
-	loc := cachedForwardGeocoder(addrSpec)
+	loc := cachedForwardGeocode(addrSpec)
 	// Write the record to the address file
 	checkedWrite(addresses, []string{addrSpec, loc.Addr, loc.Lat, loc.Lng})
 	return loc
