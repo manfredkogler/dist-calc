@@ -155,7 +155,7 @@ func ProcessAdressList(inFilepath string, outFilepath string, startPoint float64
 			continue
 		}
 
-		routeInfo := cachedCalculateRoute(from, to)
+		routeInfo, fromCache := cachedCalculateRoute(from, to)
 		fmt.Println("RouteInfo: ", routeInfo)
 
 		distanceKm := float64(routeInfo.Distance) / 1000
@@ -166,8 +166,11 @@ func ProcessAdressList(inFilepath string, outFilepath string, startPoint float64
 		routeSpec := fromSpec + " -> " + toSpec
 		checkedWrite(csvWriters.main, []string{
 			floatToString(startKm), floatToString(endKm), floatToString(distanceKm), routeSpec})
-		checkedWrite(csvWriters.distances, []string{
-			routeSpec, strconv.FormatInt(routeInfo.Distance, 10), strconv.FormatInt(routeInfo.TravelTime, 10)})
+		// Write a new record to the distance file
+		if !fromCache {
+			checkedWrite(csvWriters.distances, []string{
+				routeSpec, strconv.FormatInt(routeInfo.Distance, 10), strconv.FormatInt(routeInfo.TravelTime, 10)})
+		}
 
 		fromSpec = toSpec
 		from = to

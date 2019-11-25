@@ -42,19 +42,19 @@ func CalculateRoute(from models.Loc, to models.Loc) models.RouteInfo {
 }
 
 // CachedCalculateRouteClosure returns a cached version of CalculateRoute
-func CachedCalculateRouteClosure() (f func(models.Loc, models.Loc) models.RouteInfo) {
+func CachedCalculateRouteClosure() (f func(models.Loc, models.Loc) (models.RouteInfo, bool)) {
 	// The cache
 	var routeInfoMap = map[string]models.RouteInfo{}
 
-	f = func(from models.Loc, to models.Loc) models.RouteInfo {
+	f = func(from models.Loc, to models.Loc) (models.RouteInfo, bool) {
 		route := from.Addr + " -> " + to.Addr
-		cachedRouteInfo, ok := routeInfoMap[route]
+		routeInfo, ok := routeInfoMap[route]
 		if ok {
-			return cachedRouteInfo
+			return routeInfo, ok
 		}
-		routeInfo := CalculateRoute(from, to)
+		routeInfo = CalculateRoute(from, to)
 		routeInfoMap[route] = routeInfo
-		return routeInfo
+		return routeInfo, ok
 	}
 	return
 }
