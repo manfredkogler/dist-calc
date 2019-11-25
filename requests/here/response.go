@@ -1,7 +1,7 @@
-package models
+package requests
 
-// CalculateRouteResponse embodies the interesting parts of the calculateroute request
-type CalculateRouteResponse struct {
+// calculateRouteResponse embodies the interesting parts of the calculateroute request
+type calculateRouteResponse struct {
 	Response struct {
 		Route []struct {
 			Summary struct {
@@ -12,8 +12,8 @@ type CalculateRouteResponse struct {
 	} `json:"response"`
 }
 
-// ForwardGeocoderResponse embodies the interesting parts of the forward geocode request
-type ForwardGeocoderResponse struct {
+// forwardGeocoderResponse embodies the interesting parts of the forward geocode request
+type forwardGeocoderResponse struct {
 	Response struct {
 		View []struct {
 			Result []struct {

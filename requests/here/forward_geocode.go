@@ -20,7 +20,7 @@ const (
 var fowardGeocoderReqURL = hereAPIgeocoderURL + hereAPIstartingCredentials + hereAPIgeocoderTailParamsURL
 
 // ForwardGeocode returns the geocode for a given address specified as "searchString" (any string including whitespaces)
-func ForwardGeocode(searchString string) models.Loc {
+func (h HereGeoQuery) ForwardGeocode(searchString string) models.Loc {
 	reqString := fmt.Sprintf(fowardGeocoderReqURL, url.QueryEscape(searchString))
 	fmt.Println(reqString)
 	response, err := http.Get(reqString)
@@ -36,7 +36,7 @@ func ForwardGeocode(searchString string) models.Loc {
 	// Restore the io.ReadCloser to its original state
 	response.Body = ioutil.NopCloser(bytes.NewBuffer(data))
 
-	var b models.ForwardGeocoderResponse = models.ForwardGeocoderResponse{}
+	var b forwardGeocoderResponse
 	jd := json.NewDecoder(response.Body)
 	jd.Decode(&b)
 	resultLocation := b.Response.View[0].Result[0].Location
@@ -53,7 +53,7 @@ func floatToString(inputNum float64) string {
 }
 
 // CachedForwardGeocodeClosure returns a cached version of ForwardGeocode
-func CachedForwardGeocodeClosure() (f func(string) (models.Loc, bool)) {
+func (h HereGeoQuery) CachedForwardGeocodeClosure() (f func(string) (models.Loc, bool)) {
 	// The cache
 	var addressMap = map[string]models.Loc{}
 
@@ -62,7 +62,7 @@ func CachedForwardGeocodeClosure() (f func(string) (models.Loc, bool)) {
 		if ok {
 			return loc, ok
 		}
-		loc = ForwardGeocode(searchString)
+		loc = h.ForwardGeocode(searchString)
 		addressMap[searchString] = loc
 		return loc, ok
 	}

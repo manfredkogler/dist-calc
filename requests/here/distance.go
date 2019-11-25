@@ -18,7 +18,7 @@ const (
 var distanceReqURL = hereAPIroutingURL + hereAPIstartingCredentials + hereAPIroutingTailParamsURL
 
 // CalculateRoute calculates and returns the route info from "from" to "to"
-func CalculateRoute(from models.Loc, to models.Loc) models.RouteInfo {
+func (h HereGeoQuery) CalculateRoute(from models.Loc, to models.Loc) models.RouteInfo {
 	reqString := fmt.Sprintf(distanceReqURL, from.Lat, from.Lng, to.Lat, to.Lng)
 	fmt.Println(reqString)
 	response, err := http.Get(reqString)
@@ -34,7 +34,7 @@ func CalculateRoute(from models.Loc, to models.Loc) models.RouteInfo {
 	// Restore the io.ReadCloser to its original state
 	response.Body = ioutil.NopCloser(bytes.NewBuffer(data))
 
-	var b models.CalculateRouteResponse = models.CalculateRouteResponse{}
+	var b calculateRouteResponse
 	jd := json.NewDecoder(response.Body)
 	jd.Decode(&b)
 	rs := b.Response.Route[0].Summary
@@ -42,7 +42,7 @@ func CalculateRoute(from models.Loc, to models.Loc) models.RouteInfo {
 }
 
 // CachedCalculateRouteClosure returns a cached version of CalculateRoute
-func CachedCalculateRouteClosure() (f func(models.Loc, models.Loc) (models.RouteInfo, bool)) {
+func (h HereGeoQuery) CachedCalculateRouteClosure() (f func(models.Loc, models.Loc) (models.RouteInfo, bool)) {
 	// The cache
 	var routeInfoMap = map[string]models.RouteInfo{}
 
@@ -52,7 +52,7 @@ func CachedCalculateRouteClosure() (f func(models.Loc, models.Loc) (models.Route
 		if ok {
 			return routeInfo, ok
 		}
-		routeInfo = CalculateRoute(from, to)
+		routeInfo = h.CalculateRoute(from, to)
 		routeInfoMap[route] = routeInfo
 		return routeInfo, ok
 	}

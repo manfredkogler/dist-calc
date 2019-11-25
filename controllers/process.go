@@ -105,8 +105,23 @@ func checkedFlush(w *csv.Writer) {
 	}
 }
 
+// NewProcessor returns a new processor for some maps service implementing the GeoQuery interface
+func NewProcessor(geoQuery requests.GeoQuery) *Processor {
+	return &Processor{
+		geoQuery:             geoQuery,
+		cachedForwardGeocode: geoQuery.CachedForwardGeocodeClosure(),
+		cachedCalculateRoute: geoQuery.CachedCalculateRouteClosure()}
+}
+
+// Processor processes geo requests
+type Processor struct {
+	geoQuery             requests.GeoQuery
+	cachedForwardGeocode func(string) (models.Loc, bool)
+	cachedCalculateRoute func(models.Loc, models.Loc) (models.RouteInfo, bool)
+}
+
 // ProcessAdressList traverses the address list and generates the output files
-func ProcessAdressList(inFilepath string, outFilepath string, startPoint float64) {
+func (p Processor) ProcessAdressList(inFilepath string, outFilepath string, startPoint float64) {
 	inFile, err := os.Open(inFilepath)
 	if err != nil {
 		panic(err)
@@ -135,7 +150,7 @@ func ProcessAdressList(inFilepath string, outFilepath string, startPoint float64
 	if fromSpec == "" {
 		return
 	}
-	from := handleForwardGeocode(fromSpec, csvWriters.addresses)
+	from := p.handleForwardGeocode(fromSpec, csvWriters.addresses)
 
 	for {
 		fmt.Println("----------------------------------------------------------------------")
@@ -145,7 +160,7 @@ func ProcessAdressList(inFilepath string, outFilepath string, startPoint float64
 		if toSpec == "" {
 			break
 		}
-		to := handleForwardGeocode(toSpec, csvWriters.addresses)
+		to := p.handleForwardGeocode(toSpec, csvWriters.addresses)
 
 		// If we have handled a distance specification we cannot yet calculate a distance and
 		// we need safe the to as the from and read in the next address spec by restarting this loop
@@ -155,7 +170,7 @@ func ProcessAdressList(inFilepath string, outFilepath string, startPoint float64
 			continue
 		}
 
-		routeInfo, fromCache := cachedCalculateRoute(from, to)
+		routeInfo, fromCache := p.cachedCalculateRoute(from, to)
 		fmt.Println("RouteInfo: ", routeInfo)
 
 		distanceKm := float64(routeInfo.Distance) / 1000
@@ -179,18 +194,14 @@ func ProcessAdressList(inFilepath string, outFilepath string, startPoint float64
 	csvWriters.flush()
 }
 
-var cachedForwardGeocode = requests.CachedForwardGeocodeClosure()
-
-func handleForwardGeocode(addrSpec string, addresses *csv.Writer) models.Loc {
-	loc, fromCache := cachedForwardGeocode(addrSpec)
+func (p Processor) handleForwardGeocode(addrSpec string, addresses *csv.Writer) models.Loc {
+	loc, fromCache := p.cachedForwardGeocode(addrSpec)
 	// Write a new record to the address file
 	if !fromCache {
 		checkedWrite(addresses, []string{addrSpec, loc.Addr, loc.Lat, loc.Lng})
 	}
 	return loc
 }
-
-var cachedCalculateRoute = requests.CachedCalculateRouteClosure()
 
 // readNextAddressSpec reads the next address spec; any distance specification before is properly handled
 // return value:
