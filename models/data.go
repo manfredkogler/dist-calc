@@ -7,6 +7,6 @@ type Loc struct {
 
 // RouteInfo stores route information
 type RouteInfo struct {
-	Distance   int64
-	TravelTime int64
+	Distance   int
+	TravelTime int
 }

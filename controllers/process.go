@@ -169,7 +169,7 @@ func ProcessAdressList(inFilepath string, outFilepath string, startPoint float64
 		// Write a new record to the distance file
 		if !fromCache {
 			checkedWrite(csvWriters.distances, []string{
-				routeSpec, strconv.FormatInt(routeInfo.Distance, 10), strconv.FormatInt(routeInfo.TravelTime, 10)})
+				routeSpec, strconv.FormatInt(int64(routeInfo.Distance), 10), strconv.FormatInt(int64(routeInfo.TravelTime), 10)})
 		}
 
 		fromSpec = toSpec

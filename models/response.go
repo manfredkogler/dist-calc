@@ -14,8 +14,8 @@ type route struct {
 }
 
 type summary struct {
-	Distance   int64 `json:"distance"`
-	TravelTime int64 `json:"travelTime"`
+	Distance   int `json:"distance"`
+	TravelTime int `json:"travelTime"`
 }
 
 // ForwardGeocoderResponse embodies the interesting parts of the forward geocode request
