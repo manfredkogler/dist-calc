@@ -53,18 +53,18 @@ func floatToString(inputNum float64) string {
 }
 
 // CachedForwardGeocodeClosure returns a cached version of ForwardGeocode
-func CachedForwardGeocodeClosure() (f func(string) models.Loc) {
+func CachedForwardGeocodeClosure() (f func(string) (models.Loc, bool)) {
 	// The cache
 	var addressMap = map[string]models.Loc{}
 
-	f = func(searchString string) models.Loc {
-		cachedLoc, ok := addressMap[searchString]
+	f = func(searchString string) (models.Loc, bool) {
+		loc, ok := addressMap[searchString]
 		if ok {
-			return cachedLoc
+			return loc, ok
 		}
-		loc := ForwardGeocode(searchString)
+		loc = ForwardGeocode(searchString)
 		addressMap[searchString] = loc
-		return loc
+		return loc, ok
 	}
 	return
 }
