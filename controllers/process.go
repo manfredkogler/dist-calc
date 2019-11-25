@@ -105,19 +105,14 @@ func checkedFlush(w *csv.Writer) {
 	}
 }
 
-// NewProcessor returns a new processor for some maps service implementing the GeoQuery interface
-func NewProcessor(geoQuery requests.GeoQuery) *Processor {
-	return &Processor{
-		geoQuery:             geoQuery,
-		cachedForwardGeocode: geoQuery.CachedForwardGeocodeClosure(),
-		cachedCalculateRoute: geoQuery.CachedCalculateRouteClosure()}
+// NewProcessor returns a new processor for some maps service implementing the CachedGeoQuery interface
+func NewProcessor(cachedGeoQuery requests.CachedGeoQuery) *Processor {
+	return &Processor{cachedGeoQuery: cachedGeoQuery}
 }
 
 // Processor processes geo requests
 type Processor struct {
-	geoQuery             requests.GeoQuery
-	cachedForwardGeocode func(string) (models.Loc, bool)
-	cachedCalculateRoute func(models.Loc, models.Loc) (models.RouteInfo, bool)
+	cachedGeoQuery requests.CachedGeoQuery
 }
 
 // ProcessAdressList traverses the address list and generates the output files
@@ -170,7 +165,7 @@ func (p Processor) ProcessAdressList(inFilepath string, outFilepath string, star
 			continue
 		}
 
-		routeInfo, fromCache := p.cachedCalculateRoute(from, to)
+		routeInfo, fromCache := p.cachedGeoQuery.CalculateRoute(from, to)
 		fmt.Println("RouteInfo: ", routeInfo)
 
 		distanceKm := float64(routeInfo.Distance) / 1000
@@ -195,7 +190,7 @@ func (p Processor) ProcessAdressList(inFilepath string, outFilepath string, star
 }
 
 func (p Processor) handleForwardGeocode(addrSpec string, addresses *csv.Writer) models.Loc {
-	loc, fromCache := p.cachedForwardGeocode(addrSpec)
+	loc, fromCache := p.cachedGeoQuery.ForwardGeocode(addrSpec)
 	// Write a new record to the address file
 	if !fromCache {
 		checkedWrite(addresses, []string{addrSpec, loc.Addr, loc.Lat, loc.Lng})

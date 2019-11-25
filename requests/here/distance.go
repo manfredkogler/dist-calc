@@ -40,21 +40,3 @@ func (h HereGeoQuery) CalculateRoute(from models.Loc, to models.Loc) models.Rout
 	rs := b.Response.Route[0].Summary
 	return models.RouteInfo{Distance: rs.Distance, TravelTime: rs.TravelTime}
 }
-
-// CachedCalculateRouteClosure returns a cached version of CalculateRoute
-func (h HereGeoQuery) CachedCalculateRouteClosure() (f func(models.Loc, models.Loc) (models.RouteInfo, bool)) {
-	// The cache
-	var routeInfoMap = map[string]models.RouteInfo{}
-
-	f = func(from models.Loc, to models.Loc) (models.RouteInfo, bool) {
-		route := from.Addr + " -> " + to.Addr
-		routeInfo, ok := routeInfoMap[route]
-		if ok {
-			return routeInfo, ok
-		}
-		routeInfo = h.CalculateRoute(from, to)
-		routeInfoMap[route] = routeInfo
-		return routeInfo, ok
-	}
-	return
-}

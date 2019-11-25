@@ -2,7 +2,8 @@ package main
 
 import (
 	"dist-calc/controllers"
-	requests "dist-calc/requests/here"
+	requests "dist-calc/requests"
+	here "dist-calc/requests/here"
 	"flag"
 )
 
@@ -12,6 +13,6 @@ func main() {
 	flagStartPoint := flag.Float64("startpoint", 0.0, "starting point in km (use the dot . as comma separator)")
 	flag.Parse()
 
-	hereProcessor := controllers.NewProcessor(requests.HereGeoQuery{})
+	hereProcessor := controllers.NewProcessor(requests.NewCachedGeoQuery(here.HereGeoQuery{}))
 	hereProcessor.ProcessAdressList(*inFilepathPtr, *outFilepathPtr, *flagStartPoint)
 }

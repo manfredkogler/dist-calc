@@ -51,20 +51,3 @@ func floatToString(inputNum float64) string {
 	// to convert a float number to a string
 	return strconv.FormatFloat(inputNum, 'f', 6, 64)
 }
-
-// CachedForwardGeocodeClosure returns a cached version of ForwardGeocode
-func (h HereGeoQuery) CachedForwardGeocodeClosure() (f func(string) (models.Loc, bool)) {
-	// The cache
-	var addressMap = map[string]models.Loc{}
-
-	f = func(searchString string) (models.Loc, bool) {
-		loc, ok := addressMap[searchString]
-		if ok {
-			return loc, ok
-		}
-		loc = h.ForwardGeocode(searchString)
-		addressMap[searchString] = loc
-		return loc, ok
-	}
-	return
-}
