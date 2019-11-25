@@ -155,7 +155,7 @@ func ProcessAdressList(inFilepath string, outFilepath string, startPoint float64
 			continue
 		}
 
-		routeInfo := requests.CalculateRoute(from, to)
+		routeInfo := cachedCalculateRoute(from, to)
 		fmt.Println("RouteInfo: ", routeInfo)
 
 		distanceKm := float64(routeInfo.Distance) / 1000
@@ -184,6 +184,8 @@ func handleForwardGeocode(addrSpec string, addresses *csv.Writer) models.Loc {
 	checkedWrite(addresses, []string{addrSpec, loc.Addr, loc.Lat, loc.Lng})
 	return loc
 }
+
+var cachedCalculateRoute = requests.CachedCalculateRouteClosure()
 
 // readNextAddressSpec reads the next address spec; any distance specification before is properly handled
 // return value:
