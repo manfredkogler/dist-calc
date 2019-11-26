@@ -12,8 +12,8 @@ type calculateRouteResponse struct {
 	} `json:"response"`
 }
 
-// forwardGeocoderResponse embodies the interesting parts of the forward geocode request
-type forwardGeocoderResponse struct {
+// forwardGeocodeResponse embodies the interesting parts of the forward geocode request
+type forwardGeocodeResponse struct {
 	Response struct {
 		View []struct {
 			Result []struct {
