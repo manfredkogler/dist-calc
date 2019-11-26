@@ -11,17 +11,17 @@ import (
 	"strconv"
 )
 
-// curl 'https://geocoder.api.here.com/6.2/geocode.json?app_id=lD6sZ3QeKG552sEIkRVn&app_code=TbdJaZQdA7QxIIc3Qj--7A&searchtext=Schottenring+1+Wien'
+// curl "https://geocoder.api.here.com/6.2/geocode.json?app_id={YOUR_APP_ID}&app_code={YOUR_APP_CODE}&searchtext=Schottenring+1+Wien"
 const (
-	hereAPIgeocoderURL           = "https://geocoder.api.here.com/6.2/geocode.json?"
-	hereAPIgeocoderTailParamsURL = "searchtext=%s"
+	hereAPIgeocodeURL           = "https://geocoder.api.here.com/6.2/geocode.json?"
+	hereAPIgeocodeTailParamsURL = "searchtext=%s"
 )
 
-var fowardGeocoderReqURL = hereAPIgeocoderURL + hereAPIstartingCredentials + hereAPIgeocoderTailParamsURL
+var fowardGeocodeReqURL = hereAPIgeocodeURL + hereAPIstartingCredentials + hereAPIgeocodeTailParamsURL
 
 // ForwardGeocode returns the geocode for a given address specified as "searchString" (any string including whitespaces)
 func (h HereGeoQuery) ForwardGeocode(searchString string) models.Loc {
-	reqString := fmt.Sprintf(fowardGeocoderReqURL, url.QueryEscape(searchString))
+	reqString := fmt.Sprintf(fowardGeocodeReqURL, url.QueryEscape(searchString))
 	fmt.Println(reqString)
 	response, err := http.Get(reqString)
 	var data []byte
@@ -36,14 +36,14 @@ func (h HereGeoQuery) ForwardGeocode(searchString string) models.Loc {
 	// Restore the io.ReadCloser to its original state
 	response.Body = ioutil.NopCloser(bytes.NewBuffer(data))
 
-	var b forwardGeocoderResponse
+	var b forwardGeocodeResponse
 	jd := json.NewDecoder(response.Body)
 	jd.Decode(&b)
-	resultLocation := b.Response.View[0].Result[0].Location
+	location := b.Response.View[0].Result[0].Location
 	return models.Loc{
-		Addr: resultLocation.Address.Label,
-		Lat:  floatToString(resultLocation.NavigationPosition[0].Latitude),
-		Lng:  floatToString(resultLocation.NavigationPosition[0].Longitude),
+		Addr: location.Address.Label,
+		Lat:  floatToString(location.NavigationPosition[0].Latitude),
+		Lng:  floatToString(location.NavigationPosition[0].Longitude),
 	}
 }
 
