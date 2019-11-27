@@ -9,10 +9,10 @@ import (
 	"net/http"
 )
 
-// curl "https://route.api.here.com/routing/7.2/calculateroute.json?app_id={YOUR_APP_ID}&app_code={YOUR_APP_CODE}&waypoint0=geo!48.211836,16.319760&waypoint1=geo!48.215239,16.365305&representation=overview&mode=fastest;car;traffic:disabled"
+// https://route.api.here.com/routing/7.2/calculateroute.json?app_id={YOUR_APP_ID}&app_code={YOUR_APP_CODE}&waypoint0=geo!48.211836,16.319760&waypoint1=geo!48.215239,16.365305&representation=overview&mode=fastest;car;traffic:disabled&language=de-de
 const (
 	hereAPIroutingURL           = "https://route.api.here.com/routing/7.2/calculateroute.json?"
-	hereAPIroutingTailParamsURL = "waypoint0=geo!%s,%s&waypoint1=geo!%s,%s&representation=overview&mode=fastest;car;traffic:disabled"
+	hereAPIroutingTailParamsURL = "waypoint0=geo!%s,%s&waypoint1=geo!%s,%s&representation=overview&mode=fastest;car;traffic:disabled&language=de-de"
 )
 
 var distanceReqURL = hereAPIroutingURL + hereAPIstartingCredentials + hereAPIroutingTailParamsURL

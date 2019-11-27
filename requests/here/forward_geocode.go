@@ -11,10 +11,10 @@ import (
 	"strconv"
 )
 
-// curl "https://geocoder.api.here.com/6.2/geocode.json?app_id={YOUR_APP_ID}&app_code={YOUR_APP_CODE}&searchtext=Schottenring+1+Wien"
+// https://geocoder.api.here.com/6.2/geocode.json?app_id={YOUR_APP_ID}&app_code={YOUR_APP_CODE}&searchtext=Schottenring+1+Wien&language=de-de
 const (
 	hereAPIgeocodeURL           = "https://geocoder.api.here.com/6.2/geocode.json?"
-	hereAPIgeocodeTailParamsURL = "searchtext=%s"
+	hereAPIgeocodeTailParamsURL = "searchtext=%s&language=de-de"
 )
 
 var fowardGeocodeReqURL = hereAPIgeocodeURL + hereAPIstartingCredentials + hereAPIgeocodeTailParamsURL
