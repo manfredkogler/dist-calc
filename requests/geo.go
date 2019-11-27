@@ -26,60 +26,41 @@ type CachedGeoQuery interface {
 
 // cachedGeoQueryImpl implements a cached version of GeoQuery
 type cachedGeoQueryImpl struct {
-	geoQuery             GeoQuery
-	cachedForwardGeocode func(string) (models.Loc, bool)
-	cachedCalculateRoute func(models.Loc, models.Loc) (models.RouteInfo, bool)
+	geoQuery GeoQuery
+	// Address cache
+	addressMap map[string]models.Loc
+	// Route info cache
+	routeInfoMap map[string]models.RouteInfo
 }
 
-// CachedForwardGeocode ... see interface
+// CachedForwardGeocode implements a cached version of GeoQuery.ForwardGeocode
 func (c cachedGeoQueryImpl) ForwardGeocode(searchString string) (models.Loc, bool) {
-	return c.cachedForwardGeocode(searchString)
+	loc, ok := c.addressMap[searchString]
+	if ok {
+		return loc, ok
+	}
+	loc = c.geoQuery.ForwardGeocode(searchString)
+	c.addressMap[searchString] = loc
+	return loc, ok
 }
 
-// CachedCalculateRoute ... see interface
+// CachedCalculateRoute implements a cached version of GeoQuery.CalculateRoute
 func (c cachedGeoQueryImpl) CalculateRoute(from models.Loc, to models.Loc) (models.RouteInfo, bool) {
-	return c.cachedCalculateRoute(from, to)
+	route := from.Addr + " -> " + to.Addr
+	routeInfo, ok := c.routeInfoMap[route]
+	if ok {
+		return routeInfo, ok
+	}
+	routeInfo = c.geoQuery.CalculateRoute(from, to)
+	c.routeInfoMap[route] = routeInfo
+	return routeInfo, ok
 }
 
 // NewCachedGeoQuery returns a new cached version of geoQuery
 func NewCachedGeoQuery(geoQuery GeoQuery) CachedGeoQuery {
 	return &cachedGeoQueryImpl{
-		geoQuery:             geoQuery,
-		cachedForwardGeocode: cachedForwardGeocodeClosure(geoQuery),
-		cachedCalculateRoute: cachedCalculateRouteClosure(geoQuery)}
-}
-
-// cachedForwardGeocodeClosure returns a cached version of geoQuery's ForwardGeocode
-func cachedForwardGeocodeClosure(geoQuery GeoQuery) (f func(string) (models.Loc, bool)) {
-	// The cache
-	var addressMap = map[string]models.Loc{}
-
-	f = func(searchString string) (models.Loc, bool) {
-		loc, ok := addressMap[searchString]
-		if ok {
-			return loc, ok
-		}
-		loc = geoQuery.ForwardGeocode(searchString)
-		addressMap[searchString] = loc
-		return loc, ok
+		geoQuery:     geoQuery,
+		addressMap:   map[string]models.Loc{},
+		routeInfoMap: map[string]models.RouteInfo{},
 	}
-	return
-}
-
-// cachedCalculateRouteClosure returns a cached version of geoQuery's CalculateRoute
-func cachedCalculateRouteClosure(geoQuery GeoQuery) (f func(models.Loc, models.Loc) (models.RouteInfo, bool)) {
-	// The cache
-	var routeInfoMap = map[string]models.RouteInfo{}
-
-	f = func(from models.Loc, to models.Loc) (models.RouteInfo, bool) {
-		route := from.Addr + " -> " + to.Addr
-		routeInfo, ok := routeInfoMap[route]
-		if ok {
-			return routeInfo, ok
-		}
-		routeInfo = geoQuery.CalculateRoute(from, to)
-		routeInfoMap[route] = routeInfo
-		return routeInfo, ok
-	}
-	return
 }
