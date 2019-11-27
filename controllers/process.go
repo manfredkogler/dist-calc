@@ -95,7 +95,7 @@ func (p Processor) ProcessAdressList(inFilepath string, outFilepath string, star
 		// Write next line / location
 		routeSpec := fromSpec + " -> " + toSpec
 		checkedWrite(csvWriters.main, []string{
-			floatToString(startKm), floatToString(endKm), floatToString(distanceKm), routeSpec})
+			floatToString(startKm), floatToString(endKm), floatToString(distanceKm), "x", "", "", routeSpec})
 		// Write a new record to the distance file
 		if !fromCache {
 			checkedWrite(csvWriters.distances, []string{
@@ -149,7 +149,7 @@ func readNextAddressSpec(r *csv.Reader, w *csv.Writer, startKm *float64, endKm *
 
 		// Write direct distance record
 		checkedWrite(w, []string{
-			floatToString(*startKm), floatToString(*endKm), floatToString(distanceSpecKm), "-"})
+			floatToString(*startKm), floatToString(*endKm), floatToString(distanceSpecKm), "", "x", "", "-"})
 
 		record, err := r.Read()
 		if err == io.EOF {

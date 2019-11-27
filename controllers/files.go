@@ -68,7 +68,7 @@ func createCsvWriter(outFile *os.File) *csv.Writer {
 func (w *csvWriters) writeColumnHeaders() {
 	// Write column headers
 	checkedWrite(w.main, []string{
-		"start [km]", "end [km]", "distance [km]", "route"})
+		"start [km]", "end [km]", "distance [km]", "calculated", "specified", "comment", "route"})
 	checkedWrite(w.addresses, []string{
 		"address specified", "address found", "latitude", "longitude"})
 	checkedWrite(w.distances, []string{
