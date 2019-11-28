@@ -48,7 +48,7 @@ func (p Processor) Start(inFilepath string, outFilepath string, startPoint float
 	csvWriters.writeColumnHeaders()
 
 	if useFileCache {
-		p.cachedGeoQuery.LoadCaches()
+		p.cachedGeoQuery.LoadCaches(csvWriters.addresses, csvWriters.distances)
 	}
 	p.ProcessAdressList(r, csvWriters, startPoint)
 	if useFileCache {
