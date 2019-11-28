@@ -26,17 +26,6 @@ type Processor struct {
 
 // Start loads caches, processes the address list and stores the caches
 func (p Processor) Start(inFilepath string, outFilepath string, startPoint float64, useFileCache bool) {
-	if useFileCache {
-		p.cachedGeoQuery.LoadCaches()
-	}
-	p.ProcessAdressList(inFilepath, outFilepath, startPoint)
-	if useFileCache {
-		p.cachedGeoQuery.StoreCaches()
-	}
-}
-
-// ProcessAdressList traverses the address list and generates the output files
-func (p Processor) ProcessAdressList(inFilepath string, outFilepath string, startPoint float64) {
 	inFile, err := os.Open(inFilepath)
 	if err != nil {
 		panic(err)
@@ -58,6 +47,17 @@ func (p Processor) ProcessAdressList(inFilepath string, outFilepath string, star
 	csvWriters := createCsvWriters(outFiles)
 	csvWriters.writeColumnHeaders()
 
+	if useFileCache {
+		p.cachedGeoQuery.LoadCaches()
+	}
+	p.ProcessAdressList(r, csvWriters, startPoint)
+	if useFileCache {
+		p.cachedGeoQuery.StoreCaches()
+	}
+}
+
+// ProcessAdressList traverses the address list and generates the output files
+func (p Processor) ProcessAdressList(r *csv.Reader, csvWriters csvWriters, startPoint float64) {
 	startKm := startPoint
 	endKm := startKm
 
