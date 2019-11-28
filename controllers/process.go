@@ -18,12 +18,17 @@ import (
 
 // NewProcessor returns a new processor for some maps service implementing the CachedGeoQuery interface
 func NewProcessor(cachedGeoQuery requests.CachedGeoQuery) *Processor {
-	return &Processor{cachedGeoQuery: cachedGeoQuery}
+	return &Processor{
+		cachedGeoQuery:        cachedGeoQuery,
+		addressRecordWritten:  map[string]bool{},
+		distanceRecordWritten: map[string]bool{}}
 }
 
 // Processor processes geo requests
 type Processor struct {
-	cachedGeoQuery requests.CachedGeoQuery
+	cachedGeoQuery        requests.CachedGeoQuery
+	addressRecordWritten  map[string]bool
+	distanceRecordWritten map[string]bool
 }
 
 // Start loads caches, processes the address list and stores the caches
@@ -91,7 +96,7 @@ func (p Processor) ProcessAdressList(r *csv.Reader, csvWriters csvWriters, start
 			continue
 		}
 
-		routeInfo, fromCache := p.cachedGeoQuery.CalculateRoute(from, to)
+		routeInfo, _ := p.cachedGeoQuery.CalculateRoute(from, to)
 		fmt.Println("RouteInfo: ", routeInfo)
 
 		distanceKm := float64(routeInfo.Distance) / 1000
@@ -107,10 +112,12 @@ func (p Processor) ProcessAdressList(r *csv.Reader, csvWriters csvWriters, start
 		routeSpec := fromSpec + " -> " + toSpec
 		checkedWrite(csvWriters.main, []string{
 			floatToString(startKm), floatToString(endKm), floatToString(distanceKm), "x", "", "", routeSpec})
+
 		// Write a new record to the distance file
-		if !fromCache {
+		if !p.distanceRecordWritten[routeSpec] {
 			checkedWrite(csvWriters.distances, []string{
 				routeSpec, strconv.FormatInt(int64(routeInfo.Distance), 10), strconv.FormatInt(int64(routeInfo.TravelTime), 10)})
+			p.distanceRecordWritten[routeSpec] = true
 		}
 
 		fromSpec = toSpec
@@ -121,10 +128,11 @@ func (p Processor) ProcessAdressList(r *csv.Reader, csvWriters csvWriters, start
 }
 
 func (p Processor) handleForwardGeocode(addrSpec string, addresses *csv.Writer) models.Loc {
-	loc, fromCache := p.cachedGeoQuery.ForwardGeocode(addrSpec)
+	loc, _ := p.cachedGeoQuery.ForwardGeocode(addrSpec)
 	// Write a new record to the address file
-	if !fromCache {
+	if !p.addressRecordWritten[addrSpec] {
 		checkedWrite(addresses, []string{addrSpec, loc.Addr, loc.Lat, loc.Lng})
+		p.addressRecordWritten[addrSpec] = true
 	}
 	return loc
 }

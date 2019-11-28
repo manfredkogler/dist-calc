@@ -5,7 +5,6 @@ import (
 	"encoding/csv"
 	"encoding/gob"
 	"os"
-	"strconv"
 )
 
 // CachedCalculateRoute is cached version of CalculateRoute
@@ -60,12 +59,6 @@ func (c cachedGeoQueryImpl) loadAddressCache(addresses *csv.Writer) {
 
 	decoder := gob.NewDecoder(decodeFile)
 	decoder.Decode(&c.addressMap)
-
-	// Write the loaded/cached records to the addresses file
-	for k, v := range c.addressMap {
-		// Write a new record to the address file
-		checkedWrite(addresses, []string{k, v.Addr, v.Lat, v.Lng})
-	}
 }
 
 func checkedWrite(w *csv.Writer, record []string) {
@@ -86,13 +79,6 @@ func (c cachedGeoQueryImpl) loadRouteInfoCache(distances *csv.Writer) {
 
 	decoder := gob.NewDecoder(decodeFile)
 	decoder.Decode(&c.routeInfoMap)
-
-	// Write the loaded/cached records to the distances file
-	for k, v := range c.routeInfoMap {
-		// Write a new record to the distance file
-		checkedWrite(distances, []string{
-			k, strconv.FormatInt(int64(v.Distance), 10), strconv.FormatInt(int64(v.TravelTime), 10)})
-	}
 }
 
 // Store the caches to files
