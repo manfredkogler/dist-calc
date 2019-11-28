@@ -6,10 +6,12 @@ import (
 	"encoding/csv"
 	"fmt"
 	"io"
+	"math/rand"
 	"os"
 	"path"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/dimchansky/utfbom"
 )
@@ -50,6 +52,10 @@ func (p Processor) Start(inFilepath string, outFilepath string, startPoint float
 	if useFileCache {
 		p.cachedGeoQuery.LoadCaches(csvWriters.addresses, csvWriters.distances)
 	}
+
+	// Random package needed for adding spread to distance calculations
+	rand.Seed(time.Now().UnixNano())
+
 	p.ProcessAdressList(r, csvWriters, startPoint)
 	if useFileCache {
 		p.cachedGeoQuery.StoreCaches()
@@ -89,6 +95,11 @@ func (p Processor) ProcessAdressList(r *csv.Reader, csvWriters csvWriters, start
 		fmt.Println("RouteInfo: ", routeInfo)
 
 		distanceKm := float64(routeInfo.Distance) / 1000
+
+		// Add spread to calculated distance
+		distanceSpread := 0.3 + distanceKm*0.005
+		distanceKm = distanceKm + rand.Float64()*distanceSpread
+
 		startKm = endKm
 		endKm += distanceKm
 
