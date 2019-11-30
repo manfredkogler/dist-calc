@@ -59,6 +59,8 @@ func (p Processor) Start(inFilepath string, outFilepath string, startPoint float
 	csvWriters.writeColumnHeaders()
 
 	if useFileCache {
+		// Attempt to create the directory and ignore any issues
+		_ = os.Mkdir("internal", os.ModePerm)
 		p.cachedGeoQuery.LoadCaches(csvWriters.addresses, csvWriters.distances)
 	}
 

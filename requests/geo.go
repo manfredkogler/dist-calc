@@ -50,7 +50,7 @@ func (c cachedGeoQueryImpl) LoadCaches(addresses *csv.Writer, distances *csv.Wri
 
 // Load the address cache from a file
 func (c cachedGeoQueryImpl) loadAddressCache(addresses *csv.Writer) {
-	decodeFile, err := os.Open("addressMap.gob")
+	decodeFile, err := os.Open("internal/addressMap.gob")
 	if err != nil {
 		// No file, no cache yet, no issue...
 		return
@@ -70,7 +70,7 @@ func checkedWrite(w *csv.Writer, record []string) {
 
 // Load the route info cache from a file
 func (c cachedGeoQueryImpl) loadRouteInfoCache(distances *csv.Writer) {
-	decodeFile, err := os.Open("routeInfoMap.gob")
+	decodeFile, err := os.Open("internal/routeInfoMap.gob")
 	if err != nil {
 		// No file, no cache yet, no issue...
 		return
@@ -89,7 +89,7 @@ func (c cachedGeoQueryImpl) StoreCaches() {
 
 // Store the address cache to a file
 func (c cachedGeoQueryImpl) storeAddressCache() {
-	encodeFile, err := os.Create("addressMap.gob")
+	encodeFile, err := os.Create("internal/addressMap.gob")
 	if err != nil {
 		panic(err)
 	}
@@ -103,7 +103,7 @@ func (c cachedGeoQueryImpl) storeAddressCache() {
 
 // Store the route info cache to a file
 func (c cachedGeoQueryImpl) storeRouteInfoCache() {
-	encodeFile, err := os.Create("routeInfoMap.gob")
+	encodeFile, err := os.Create("internal/routeInfoMap.gob")
 	if err != nil {
 		panic(err)
 	}
