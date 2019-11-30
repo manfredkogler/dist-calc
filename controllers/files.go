@@ -72,7 +72,7 @@ func (w *csvWriters) writeColumnHeaders() {
 	checkedWrite(w.addresses, []string{
 		"address specified", "address found", "latitude", "longitude"})
 	checkedWrite(w.distances, []string{
-		"route", "distance [m]", "travel time [s]"})
+		"route", "distance [m]", "distance [km]", "travel time [s]"})
 }
 
 func checkedWrite(w *csv.Writer, record []string) {

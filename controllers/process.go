@@ -17,11 +17,13 @@ import (
 )
 
 // NewProcessor returns a new processor for some maps service implementing the CachedGeoQuery interface
-func NewProcessor(cachedGeoQuery requests.CachedGeoQuery) *Processor {
+func NewProcessor(cachedGeoQuery requests.CachedGeoQuery, spreadBase float64, spreadFactor float64) *Processor {
 	return &Processor{
 		cachedGeoQuery:        cachedGeoQuery,
 		addressRecordWritten:  map[string]bool{},
-		distanceRecordWritten: map[string]bool{}}
+		distanceRecordWritten: map[string]bool{},
+		spreadBase:            spreadBase,
+		spreadFactor:          spreadFactor}
 }
 
 // Processor processes geo requests
@@ -29,6 +31,8 @@ type Processor struct {
 	cachedGeoQuery        requests.CachedGeoQuery
 	addressRecordWritten  map[string]bool
 	distanceRecordWritten map[string]bool
+	spreadBase            float64
+	spreadFactor          float64
 }
 
 // Start loads caches, processes the address list and stores the caches
@@ -101,22 +105,25 @@ func (p Processor) ProcessAdressList(r *csv.Reader, csvWriters csvWriters, start
 
 		distanceKm := float64(routeInfo.Distance) / 1000
 
-		// Add spread to calculated distance
-		distanceSpread := 0.3 + distanceKm*0.005
-		distanceKm = distanceKm + rand.Float64()*distanceSpread
+		// Add real world spread to calculated distance
+		maxSpreadToAdd := p.spreadBase + distanceKm*p.spreadFactor
+		distanceKmSpread := distanceKm + rand.Float64()*maxSpreadToAdd
 
 		startKm = endKm
-		endKm += distanceKm
+		endKm += distanceKmSpread
 
 		// Write next line / location
 		routeSpec := fromSpec + " -> " + toSpec
 		checkedWrite(csvWriters.main, []string{
-			floatToString(startKm), floatToString(endKm), floatToString(distanceKm), "x", "", "", routeSpec})
+			floatToString(startKm), floatToString(endKm), floatToString(distanceKmSpread), "x", "", "", routeSpec})
 
 		// Write a new record to the distance file
 		if !p.distanceRecordWritten[routeSpec] {
 			checkedWrite(csvWriters.distances, []string{
-				routeSpec, strconv.FormatInt(int64(routeInfo.Distance), 10), strconv.FormatInt(int64(routeInfo.TravelTime), 10)})
+				routeSpec,
+				strconv.FormatInt(int64(routeInfo.Distance), 10),
+				floatToString(distanceKm),
+				strconv.FormatInt(int64(routeInfo.TravelTime), 10)})
 			p.distanceRecordWritten[routeSpec] = true
 		}
 
