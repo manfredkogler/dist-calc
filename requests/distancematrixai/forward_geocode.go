@@ -2,13 +2,13 @@ package requests
 
 import (
 	"bytes"
+	"dist-calc/common"
 	"dist-calc/models"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"strconv"
 )
 
 // https://api-geocode.service.distancematrix.ai/maps/api/geocode/json?address=Lambertgasse+4,+Wien&language=de&key=YOUR_API_KEY
@@ -49,6 +49,5 @@ func (h DistancematrixaiGeoQuery) ForwardGeocode(searchString string) models.Loc
 }
 
 func floatToString(inputNum float64) string {
-	// to convert a float number to a string
-	return strconv.FormatFloat(inputNum, 'f', 6, 64)
+	return common.FloatToString(inputNum, 6)
 }

@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"dist-calc/common"
 	"dist-calc/models"
 	"dist-calc/requests"
 	"encoding/csv"
@@ -193,8 +194,5 @@ func readNextAddressSpec(r *csv.Reader, w *csv.Writer, startKm *float64, endKm *
 }
 
 func floatToString(inputNum float64) string {
-	// to convert a float number to a string
-	value := strconv.FormatFloat(inputNum, 'f', 1, 64)
-	// Use comma instead of dot as decimal "point" for Excel to properly handle it
-	return strings.Replace(value, ".", ",", -1)
+	return common.FloatToString(inputNum, 1)
 }
