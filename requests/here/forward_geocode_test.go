@@ -2,7 +2,7 @@ package requests_test
 
 import (
 	"dist-calc/models"
-	"dist-calc/requests"
+	requests "dist-calc/requests/here"
 	"testing"
 )
 
@@ -24,11 +24,13 @@ const (
 // test data END
 
 func TestForwardGeocode(t *testing.T) {
-	routeInfo := requests.CalculateRoute(Locations[Lambertgasse], Locations[Schottenring])
-	routeInfo = requests.CalculateRoute(Locations[Schottenring], Locations[Lambertgasse])
+	hereService := requests.HereGeoQuery{}
+
+	routeInfo := hereService.CalculateRoute(Locations[Lambertgasse], Locations[Schottenring])
+	routeInfo = hereService.CalculateRoute(Locations[Schottenring], Locations[Lambertgasse])
 	_ = routeInfo
 
-	location := requests.ForwardGeocode("Schottenring 1 Wien")
-	location = requests.ForwardGeocode("Lambertgasse 4 Wien")
+	location := hereService.ForwardGeocode("Schottenring 1 Wien")
+	location = hereService.ForwardGeocode("Lambertgasse 4 Wien")
 	_ = location
 }
