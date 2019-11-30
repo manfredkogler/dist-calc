@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"dist-calc/common"
 	"dist-calc/models"
 	"dist-calc/requests"
 	"encoding/csv"
@@ -124,6 +123,7 @@ func (p Processor) ProcessAdressList(r *csv.Reader, csvWriters csvWriters, start
 				routeSpec,
 				strconv.FormatInt(int64(routeInfo.Distance), 10),
 				floatToString(distanceKm),
+				floatToString(maxSpreadToAdd),
 				strconv.FormatInt(int64(routeInfo.TravelTime), 10)})
 			p.distanceRecordWritten[routeSpec] = true
 		}
@@ -194,5 +194,8 @@ func readNextAddressSpec(r *csv.Reader, w *csv.Writer, startKm *float64, endKm *
 }
 
 func floatToString(inputNum float64) string {
-	return common.FloatToString(inputNum, 1)
+	// to convert a float number to a string
+	value := strconv.FormatFloat(inputNum, 'f', 1, 64)
+	// Use comma instead of dot as decimal "point" for Excel to properly handle it
+	return strings.Replace(value, ".", ",", -1)
 }

@@ -2,13 +2,13 @@ package requests
 
 import (
 	"bytes"
-	"dist-calc/common"
 	"dist-calc/models"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strconv"
 )
 
 // https://geocoder.api.here.com/6.2/geocode.json?app_id={YOUR_APP_ID}&app_code={YOUR_APP_CODE}&searchtext=Schottenring+1+Wien&language=de-de
@@ -48,5 +48,6 @@ func (h HereGeoQuery) ForwardGeocode(searchString string) models.Loc {
 }
 
 func floatToString(inputNum float64) string {
-	return common.FloatToString(inputNum, 6)
+	// The dot as decimal point must not be changed as the maps services need it like that.
+	return strconv.FormatFloat(inputNum, 'f', 6, 64)
 }
