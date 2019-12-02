@@ -85,8 +85,6 @@ func (p Processor) ProcessAdressList(r *csv.Reader, csvWriters csvWriters, start
 	from := p.handleForwardGeocode(fromSpec, csvWriters.addresses)
 
 	for {
-		fmt.Println("----------------------------------------------------------------------")
-
 		// var toSpec string
 		toSpec, distanceSpecHandled := readNextAddressSpec(r, csvWriters.main, &startKm, &endKm)
 		if toSpec == "" {
@@ -102,8 +100,13 @@ func (p Processor) ProcessAdressList(r *csv.Reader, csvWriters csvWriters, start
 			continue
 		}
 
-		routeInfo, _ := p.cachedGeoQuery.CalculateRoute(from, to)
-		fmt.Println("RouteInfo: ", routeInfo)
+		routeInfo, fromCache := p.cachedGeoQuery.CalculateRoute(from, to)
+		sCacheInfo := ""
+		if fromCache {
+			sCacheInfo = " - from cache"
+		}
+		fmt.Println("*** RouteInfo: ", routeInfo, sCacheInfo)
+		fmt.Println("----------------------------------------------------------------------")
 
 		distanceKm := float64(routeInfo.Distance) / 1000
 
