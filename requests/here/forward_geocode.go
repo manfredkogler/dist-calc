@@ -11,9 +11,9 @@ import (
 	"strconv"
 )
 
-// https://geocoder.api.here.com/6.2/geocode.json?app_id={YOUR_APP_ID}&app_code={YOUR_APP_CODE}&searchtext=Schottenring+1+Wien&language=de-de
+// https://geocoder.ls.hereapi.com/6.2/geocode.json?apiKey={YOUR_API_KEY}&searchtext=Schottenring+1+Wien&language=de-de
 const (
-	hereAPIgeocodeURL           = "https://geocoder.api.here.com/6.2/geocode.json?"
+	hereAPIgeocodeURL           = "https://geocoder.ls.hereapi.com/6.2/geocode.json?"
 	hereAPIgeocodeTailParamsURL = "searchtext=%s&language=de-de"
 )
 

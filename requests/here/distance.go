@@ -9,9 +9,9 @@ import (
 	"net/http"
 )
 
-// https://route.api.here.com/routing/7.2/calculateroute.json?app_id={YOUR_APP_ID}&app_code={YOUR_APP_CODE}&waypoint0=geo!48.211836,16.319760&waypoint1=geo!48.215239,16.365305&representation=overview&mode=fastest;car;traffic:disabled&language=de-de
+// https://route.ls.hereapi.com/routing/7.2/calculateroute.json?apiKey={YOUR_API_KEY}&waypoint0=geo!48.211836,16.319760&waypoint1=geo!48.215239,16.365305&representation=overview&mode=fastest;car;traffic:disabled&language=de-de
 const (
-	hereAPIroutingURL           = "https://route.api.here.com/routing/7.2/calculateroute.json?"
+	hereAPIroutingURL           = "https://route.ls.hereapi.com/routing/7.2/calculateroute.json?"
 	hereAPIroutingTailParamsURL = "waypoint0=geo!%s,%s&waypoint1=geo!%s,%s&representation=overview&mode=fastest;car;traffic:disabled&language=de-de"
 )
 
