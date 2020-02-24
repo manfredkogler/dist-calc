@@ -8,12 +8,6 @@ import (
 	"github.com/manfredkogler/dist-calc/models"
 )
 
-// CachedCalculateRoute is cached version of CalculateRoute
-// type CachedCalculateRoute func(models.Loc, models.Loc) (models.RouteInfo, bool)
-
-// CachedForwardGeocode is cached version of ForwardGeocode
-// type CachedForwardGeocode func(string) (models.Loc, bool)
-
 // GeoQuery defines the interface for some geo queries
 type GeoQuery interface {
 	// ForwardGeocode returns the geocode for a given address specified as "searchString" (any string including whitespaces)
@@ -116,7 +110,7 @@ func (c cachedGeoQueryImpl) storeRouteInfoCache() {
 	encodeFile.Close()
 }
 
-// CachedForwardGeocode implements a cached version of GeoQuery.ForwardGeocode
+// ForwardGeocode implements a cached version of GeoQuery.ForwardGeocode
 func (c cachedGeoQueryImpl) ForwardGeocode(searchString string) (models.Loc, bool) {
 	loc, ok := c.addressMap[searchString]
 	if ok {
@@ -127,7 +121,7 @@ func (c cachedGeoQueryImpl) ForwardGeocode(searchString string) (models.Loc, boo
 	return loc, ok
 }
 
-// CachedCalculateRoute implements a cached version of GeoQuery.CalculateRoute
+// CalculateRoute implements a cached version of GeoQuery.CalculateRoute
 func (c cachedGeoQueryImpl) CalculateRoute(from models.Loc, to models.Loc) (models.RouteInfo, bool) {
 	route := from.Addr + " -> " + to.Addr
 	routeInfo, ok := c.routeInfoMap[route]
