@@ -1,8 +1,6 @@
 package controllers
 
 import (
-	"dist-calc/models"
-	"dist-calc/requests"
 	"encoding/csv"
 	"fmt"
 	"io"
@@ -12,6 +10,9 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/manfredkogler/dist-calc/models"
+	"github.com/manfredkogler/dist-calc/requests"
 
 	"github.com/dimchansky/utfbom"
 )

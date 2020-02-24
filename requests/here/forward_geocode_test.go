@@ -1,9 +1,10 @@
 package requests_test
 
 import (
-	"dist-calc/models"
-	requests "dist-calc/requests/here"
 	"testing"
+
+	"github.com/manfredkogler/dist-calc/models"
+	requests "github.com/manfredkogler/dist-calc/requests/here"
 )
 
 // test data BEGIN

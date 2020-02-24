@@ -2,11 +2,12 @@ package requests
 
 import (
 	"bytes"
-	"dist-calc/models"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/manfredkogler/dist-calc/models"
 )
 
 // https://route.ls.hereapi.com/routing/7.2/calculateroute.json?apiKey={YOUR_API_KEY}&waypoint0=geo!48.211836,16.319760&waypoint1=geo!48.215239,16.365305&representation=overview&mode=fastest;car;traffic:disabled&language=de-de

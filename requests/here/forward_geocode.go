@@ -2,13 +2,14 @@ package requests
 
 import (
 	"bytes"
-	"dist-calc/models"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strconv"
+
+	"github.com/manfredkogler/dist-calc/models"
 )
 
 // https://geocoder.ls.hereapi.com/6.2/geocode.json?apiKey={YOUR_API_KEY}&searchtext=Schottenring+1+Wien&language=de-de

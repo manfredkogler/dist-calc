@@ -1,12 +1,13 @@
 package main
 
 import (
-	"dist-calc/controllers"
-	requests "dist-calc/requests"
-
-	distancematrixai "dist-calc/requests/distancematrixai"
-	here "dist-calc/requests/here"
 	"flag"
+
+	"github.com/manfredkogler/dist-calc/controllers"
+	"github.com/manfredkogler/dist-calc/requests"
+
+	distancematrixai "github.com/manfredkogler/dist-calc/requests/distancematrixai"
+	here "github.com/manfredkogler/dist-calc/requests/here"
 )
 
 func main() {

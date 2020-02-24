@@ -2,13 +2,14 @@ package requests
 
 import (
 	"bytes"
-	"dist-calc/models"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strconv"
+
+	"github.com/manfredkogler/dist-calc/models"
 )
 
 // https://api-geocode.service.distancematrix.ai/maps/api/geocode/json?address=Lambertgasse+4,+Wien&language=de&key=YOUR_API_KEY

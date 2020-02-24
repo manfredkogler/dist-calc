@@ -2,11 +2,12 @@ package requests
 
 import (
 	"bytes"
-	"dist-calc/models"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/manfredkogler/dist-calc/models"
 )
 
 // https://api.distancematrix.ai/maps/api/distancematrix/json?origins=48.211836,16.319760&destinations=48.215239,16.365305&language=de&key=<your_access_token>

@@ -1,10 +1,11 @@
 package requests
 
 import (
-	"dist-calc/models"
 	"encoding/csv"
 	"encoding/gob"
 	"os"
+
+	"github.com/manfredkogler/dist-calc/models"
 )
 
 // CachedCalculateRoute is cached version of CalculateRoute
