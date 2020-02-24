@@ -20,13 +20,17 @@ func main() {
 	spreadFactorPtr := flag.Float64("spreadfactor", 0.005, "spread factor")
 	flag.Parse()
 
-	// Default geo query is the here service
-	var geoQuery requests.GeoQuery = here.HereGeoQuery{}
+	// Set the requested geo query service
+	var geoQuery requests.GeoQuery
 	switch *servicePtr {
 	case "d":
 		geoQuery = distancematrixai.DistancematrixaiGeoQuery{}
+	default:
+		// Default geo query is the here service
+		geoQuery = here.HereGeoQuery{}
 	}
 
+	// We use the cached version of the geo query
 	geoProcessor := controllers.NewProcessor(requests.NewCachedGeoQuery(geoQuery), *spreadBasePtr, *spreadFactorPtr)
 	geoProcessor.Start(*inFilepathPtr, *outFilepathPtr, *flagStartPoint, !*noFileCachePtr)
 }
