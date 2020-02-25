@@ -24,7 +24,7 @@ const (
 // test data END
 
 func TestForwardGeocode(t *testing.T) {
-	hereService := requests.HereGeoQuery{}
+	hereService := HereGeoQuery{}
 
 	routeInfo := hereService.CalculateRoute(Locations[Lambertgasse], Locations[Schottenring])
 	routeInfo = hereService.CalculateRoute(Locations[Schottenring], Locations[Lambertgasse])
