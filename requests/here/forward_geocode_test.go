@@ -1,10 +1,9 @@
-package requests_test
+package requests
 
 import (
 	"testing"
 
 	"github.com/manfredkogler/dist-calc/models"
-	requests "github.com/manfredkogler/dist-calc/requests/here"
 )
 
 // test data BEGIN
